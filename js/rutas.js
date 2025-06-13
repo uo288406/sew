@@ -85,7 +85,7 @@ class Rutas {
 
                     hitos.each(function(){ 
                         const nombreHito = $(this).find('nombreHito').text();
-                        const descHito = $(this).find('descHito').text();
+                        const descHito = $(this).find('descripcionHito').text();
 
                         const longitud = $(this).find('coordenadasHito > longitud').text();
                         const latitud = $(this).find('coordenadasHito > latitud').text();
@@ -112,30 +112,55 @@ class Rutas {
                     const mapId = `kmlMap-${index}`;
 
                     const kmlSection = $("<section></section>");
+                    const kmlDiv = $("<div></div>");
                     kmlSection.append($("<h3>Mapa con los datos del KML</h3>"));
-                    kmlSection.attr("id", mapId);
+                    kmlDiv.attr("id", mapId);
+                    kmlSection.append(kmlDiv);
                     article.append(kmlSection);
 
-                    L.mapbox.accessToken = 'pk.eyJ1IjoidW8yODg0MDYiLCJhIjoiY200MDZjamNuMjU2MDJycXpsOGFtMmQ4ayJ9.pLQtA7PIIhpqgQuNGCzcMA';
+                    mapboxgl.accessToken = 'pk.eyJ1IjoidW8yODg0MDYiLCJhIjoiY200MDZjamNuMjU2MDJycXpsOGFtMmQ4ayJ9.pLQtA7PIIhpqgQuNGCzcMA';
 
-                    var map = L.mapbox.map(mapId)
-                                      .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v12'))
-                                      .setView([43.3938, -5.7078], 8);
-                    
-                    omnivore.kml(ficheroKML)
-                    .on('ready', function () {
-                        this.addTo(map);
-                        map.fitBounds(this.getBounds());
+                    fetch(ficheroKML)
+                        .then(response => response.text())
+                        .then(kmlText => {
+                            const parser = new DOMParser();
+                            const kmlDom = parser.parseFromString(kmlText, 'text/xml');
+                            const geojson = toGeoJSON.kml(kmlDom);
 
-                        var points = this.getLayers().map(function (layer) {
-                            return layer.getLatLng(); 
-                        });
-                
-                        var polyline = L.polyline(points, { color: 'red' });
-                        polyline.addTo(map); 
+                            const map = new mapboxgl.Map({
+                                container: mapId,
+                                style: 'mapbox://styles/mapbox/streets-v12',
+                                center: [geojson.features[0].geometry.coordinates[0][0], geojson.features[0].geometry.coordinates[0][1]],
+                                zoom: 10
+                            });
+
+                            map.on('load', () => {
+                                map.addSource('route-' + mapId, {
+                                    type: 'geojson',
+                                    data: geojson
+                                });
+
+                                map.addLayer({
+                                    id: 'route-line-' + mapId,
+                                    type: 'line',
+                                    source: 'route-' + mapId,
+                                    paint: {
+                                    'line-color': '#ff0000',
+                                    'line-width': 4
+                                    }
+                            });
+                            
+                                const bounds = new mapboxgl.LngLatBounds();
+                                geojson.features.forEach((feature) => {
+                                    feature.geometry.coordinates.forEach((coord) => {
+                                        bounds.extend(coord);
+                                    });
+                                });
+                                map.fitBounds(bounds, { padding: 20 });
+                            });
                     })
-                    .on('error', function(e) {
-                        console.error("Error al cargar KML:", e.error);
+                    .catch(err => {
+                        console.error("Error al cargar o convertir el KML:", err);
                         kmlSection.append("<p>No se pudo cargar el archivo KML.</p>");
                     });
                     

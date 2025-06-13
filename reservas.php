@@ -6,8 +6,8 @@
 	<title>Proyecto</title>
 	 
     <meta name="author" content ="Claudia Rodriguez Fuertes" />
-    <meta name="description" content ="documento inicial de recursos turisticos" />
-    <meta name="keywords" content ="" />
+    <meta name="description" content ="documento de reservas" />
+    <meta name="keywords" content ="reserva" />
     <meta name="viewport" content ="width=device-width, initial-scale=1.0" />
      
 	<link rel="icon" href="multimedia/imagenes/favicon.ico" />
@@ -57,6 +57,7 @@
 
 
 				public function formularioRegistro() {
+					echo '<p>Para cualquier duda, podrá consultar la sección de ayuda proporcionada en el menú superior.</p>';
 					echo '<h2>Registro de Usuario</h2>';
 					echo '<form method="post">';
 					echo '<label>Nombre: <input type="text" name="nombre" required></label>';

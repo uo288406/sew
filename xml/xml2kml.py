@@ -29,24 +29,35 @@ def coordenadas(archivoXML):
         kml += header_kml
         
         nombreRuta = ruta.get('nombreRuta')
-        descripcion = ruta.find(ns + 'descripcion').text
+
+        coordenadas_kml = []
 
         latitud = ruta.find(ns + 'coordenadasInicio/' + ns + 'latitud').text
         longitud = ruta.find(ns + 'coordenadasInicio/' + ns + 'longitud').text
         altitud = ruta.find(ns + 'coordenadasInicio/' + ns + 'altitud').text
 
-        kml += crearMarcador(nombreRuta, descripcion, latitud, longitud, altitud)
+        coordenadas_kml.append(f"{longitud},{latitud},{altitud}")
 
         hitos = ruta.find('.//' + ns + 'hitos')
         for hito in hitos.findall('.//' + ns + 'hito'):
 
-            nombreHito = hito.find(ns + 'nombreHito').text
-            descripcion = hito.find(ns + 'descripcionHito').text
             latitud = hito.find(ns + 'coordenadasHito/' + ns + 'latitud').text
             longitud = hito.find(ns + 'coordenadasHito/' + ns + 'longitud').text
             altitud = hito.find(ns + 'coordenadasHito/' + ns + 'altitud').text
 
-            kml += crearMarcador(nombreHito, descripcion, latitud, longitud, altitud)
+            coordenadas_kml.append(f"{longitud},{latitud},{altitud}")
+
+        kml += '\t<Placemark>\n'
+        kml += f'\t\t<name>{nombreRuta}</name>\n'
+        kml += '\t\t<LineString>\n'
+        kml += '\t\t\t<coordinates>\n'
+
+        for coord in coordenadas_kml:
+            kml += f'\t\t\t\t{coord}\n'
+
+        kml += '\t\t\t</coordinates>\n'
+        kml += '\t\t</LineString>\n'
+        kml += '\t</Placemark>\n'
 
         kml += footer_kml
 
@@ -54,24 +65,6 @@ def coordenadas(archivoXML):
         rutasKml.write(kml)
         rutasKml.close()
         nRuta += 1
-
-
-def crearMarcador(nombre, descripcion, latitud, longitud, altitud):
-    kml = ""
-    kml += "\t<Placemark>\n"
-    kml += "\t\t<name>" + nombre + "</name>\n"
-    kml += "\t\t<description>" + descripcion + "</description>\n"
-    kml += crearPunto(longitud, latitud, altitud)
-    kml += "\t</Placemark>\n"
-    return kml
-    
-
-def crearPunto(longitud, latitud, altitud):
-    kml = ""
-    kml += "\t\t<Point>\n"
-    kml += f"\t\t\t<coordinates>{longitud},{latitud},{altitud}</coordinates>\n"
-    kml += "\t\t</Point>\n"
-    return kml
 
 def main():
     archivoXML = "C:\\xampp\\htdocs\\Proyecto\\xml\\rutas.xml"

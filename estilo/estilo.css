@@ -214,8 +214,8 @@ section svg {
     width: 100vw;
 }
 
-/* section:nth-of-type(2) section Especificidad: 0, 1, 2 */
-article section{
+/* section > div section Especificidad: 0, 0, 2 */
+section > div{
     margin-top: 5vh;
     top: 0;
     bottom: 0;
@@ -228,9 +228,18 @@ body > main > p{
     font-size: 1.75em;
 }
 
-
 /* body > main > button Especificidad: 0, 0, 3 */
 body > main > button{
     font-size: 1.25em;
 }
 
+/* form ul li Especificidad: 0, 0, 3 */
+form ul li {
+    font-size: 1.25em; 
+}
+
+/* form input Especificidad: 0, 0, 2 */
+form input {
+    display: block;
+    margin-bottom: 1em;
+}

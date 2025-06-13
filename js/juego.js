@@ -16,6 +16,8 @@ class Juego {
         this.section = document.createElement("section");
         this.title = document.createElement("h2");
         this.title.textContent = "Test"
+        this.help = document.createElement("p");
+        this.help.textContent = "Para cualquier duda a la hora de realizar el test, podrá consultar la sección de ayuda proporcionada en el menú superior."
         this.result = document.createElement("p");
         this.button = document.createElement("button"); 
         this.button.type = "button";                    
@@ -23,6 +25,7 @@ class Juego {
     
         main.appendChild(this.section);
         this.section.appendChild(this.title);
+        this.section.appendChild(this.help);
         main.appendChild(this.result);
         main.appendChild(this.button);
     }
